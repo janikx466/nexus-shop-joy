@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getProductDetailImage, getProductCardImage } from '@/lib/imageUtils';
 
 interface ImageCarouselProps {
   images: string[];
@@ -51,13 +52,16 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
     );
   }
 
+  // Get optimized URLs
+  const currentDetailImage = getProductDetailImage(images[currentIndex]);
+
   return (
     <div className="relative">
       <div className="aspect-square overflow-hidden rounded-2xl bg-secondary relative">
         <AnimatePresence initial={false} custom={direction}>
           <motion.img
             key={currentIndex}
-            src={images[currentIndex]}
+            src={currentDetailImage}
             custom={direction}
             variants={slideVariants}
             initial="enter"
@@ -79,6 +83,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
               }
             }}
             className="absolute inset-0 w-full h-full object-cover cursor-grab active:cursor-grabbing"
+            loading="lazy"
+            decoding="async"
           />
         </AnimatePresence>
 
@@ -144,9 +150,11 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
               }`}
             >
               <img
-                src={image}
+                src={getProductCardImage(image)}
                 alt={`Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </motion.button>
           ))}
