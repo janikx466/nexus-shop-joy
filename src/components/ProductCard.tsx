@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Product } from '@/hooks/useProducts';
 import { getProductCardImage } from '@/lib/imageUtils';
 import { formatPKR } from '@/lib/currency';
@@ -15,6 +16,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
   const navigate = useNavigate();
   const imageUrl = product.images[0] ? getProductCardImage(product.images[0]) : '';
+  const isOutOfStock = product.stock <= 0;
 
   return (
     <motion.div
@@ -30,7 +32,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           <img
             src={imageUrl}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${isOutOfStock ? 'opacity-50' : ''}`}
             loading="lazy"
             decoding="async"
           />
@@ -38,6 +40,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
             No Image
           </div>
+        )}
+        
+        {/* Stock Badge */}
+        {isOutOfStock && (
+          <Badge variant="destructive" className="absolute top-3 right-3">
+            Out of Stock
+          </Badge>
         )}
         
         {/* Overlay */}
@@ -51,17 +60,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         </h3>
         
         <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-accent">
-            {formatPKR(product.price)}
-          </span>
+          <div>
+            <span className="text-xl font-bold text-accent">
+              {formatPKR(product.price)}
+            </span>
+            {!isOutOfStock && (
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {product.stock} available
+              </p>
+            )}
+          </div>
           
           <Button
             onClick={() => navigate(`/product/${product.id}`)}
             size="sm"
             className="btn-accent text-sm px-4 py-2"
+            disabled={isOutOfStock}
           >
             <ShoppingCart className="h-4 w-4 mr-2" />
-            Buy Now
+            {isOutOfStock ? 'Sold Out' : 'Buy Now'}
           </Button>
         </div>
       </div>

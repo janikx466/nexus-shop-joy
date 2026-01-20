@@ -28,6 +28,7 @@ const ProductManagement: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
+    stock: '',
     description: '',
     images: [] as string[],
   });
@@ -36,6 +37,7 @@ const ProductManagement: React.FC = () => {
     setFormData({
       name: '',
       price: '',
+      stock: '',
       description: '',
       images: [],
     });
@@ -47,6 +49,7 @@ const ProductManagement: React.FC = () => {
     setFormData({
       name: product.name,
       price: product.price.toString(),
+      stock: product.stock.toString(),
       description: product.description,
       images: product.images,
     });
@@ -62,6 +65,7 @@ const ProductManagement: React.FC = () => {
       const productData = {
         name: formData.name,
         price: parseFloat(formData.price) || 0,
+        stock: parseInt(formData.stock) || 0,
         description: formData.description,
         images: formData.images,
       };
@@ -136,19 +140,34 @@ const ProductManagement: React.FC = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="price">Price (PKR)</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="0.00"
-                  required
-                  disabled={isDemoAdmin}
-                />
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="price">Price (PKR)</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    placeholder="0.00"
+                    required
+                    disabled={isDemoAdmin}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stock">Stock Quantity</Label>
+                  <Input
+                    id="stock"
+                    type="number"
+                    min="0"
+                    value={formData.stock}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                    placeholder="0"
+                    required
+                    disabled={isDemoAdmin}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -242,9 +261,14 @@ const ProductManagement: React.FC = () => {
                 <h3 className="font-semibold text-foreground line-clamp-1">
                   {product.name}
                 </h3>
-                <p className="text-accent font-bold mt-1">
-                  {formatPKR(product.price)}
-                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-accent font-bold">
+                    {formatPKR(product.price)}
+                  </p>
+                  <span className={`text-sm font-medium ${product.stock > 0 ? 'text-green-600' : 'text-destructive'}`}>
+                    {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                  </span>
+                </div>
                 
                 <div className="flex gap-2 mt-4">
                   <Button

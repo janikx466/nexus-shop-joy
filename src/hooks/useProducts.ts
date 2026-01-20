@@ -8,6 +8,7 @@ export interface Product {
   price: number;
   description: string;
   images: string[];
+  stock: number;
   createdAt: Date;
 }
 
@@ -22,6 +23,7 @@ export const useProducts = () => {
         const productsData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
+          stock: doc.data().stock ?? 0,
           createdAt: doc.data().createdAt?.toDate() || new Date(),
         })) as Product[];
         
