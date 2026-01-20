@@ -15,6 +15,7 @@ import {
 import ImageUploader from './ImageUploader';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useAuth } from '@/contexts/AuthContext';
+import { formatPKR } from '@/lib/currency';
 
 const ProductManagement: React.FC = () => {
   const { products, loading, addProduct, updateProduct, deleteProduct } = useProducts();
@@ -136,7 +137,7 @@ const ProductManagement: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="price">Price ($)</Label>
+                <Label htmlFor="price">Price (PKR)</Label>
                 <Input
                   id="price"
                   type="number"
@@ -242,7 +243,7 @@ const ProductManagement: React.FC = () => {
                   {product.name}
                 </h3>
                 <p className="text-accent font-bold mt-1">
-                  ${product.price.toFixed(2)}
+                  {formatPKR(product.price)}
                 </p>
                 
                 <div className="flex gap-2 mt-4">

@@ -19,6 +19,7 @@ import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSite } from '@/contexts/SiteContext';
 import { Product } from '@/hooks/useProducts';
+import { formatPKR, generateOrderId } from '@/lib/currency';
 
 const OrderPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +31,7 @@ const OrderPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
+  const [orderId, setOrderId] = useState('');
 
   const [formData, setFormData] = useState({
     userName: '',
@@ -94,29 +96,39 @@ const OrderPage: React.FC = () => {
     if (!product || !settings.whatsappNumber) return;
 
     setSending(true);
+    
+    // Generate unique Order ID
+    const newOrderId = generateOrderId();
+    setOrderId(newOrderId);
+    
+    // Get product URL - use the published URL or current origin
+    const baseUrl = window.location.origin;
+    const productUrl = `${baseUrl}/product/${product.id}`;
+    
+    const paymentMethodName = settings.paymentMethods.find(m => m.id === formData.paymentMethod)?.name || 'N/A';
+    
+    const message = `🛒 NEW ORDER RECEIVED
 
-    const message = `
-🛒 *NEW ORDER*
+🆔 Order ID: ${newOrderId}
 
-📦 *Product:* ${product.name}
-💰 *Amount:* $${product.price.toFixed(2)}
+📦 Product: ${product.name}
+🔗 Product Link:
+${productUrl}
 
-👤 *Customer Details:*
-• Name: ${formData.userName}
-• WhatsApp: ${formData.whatsappNumber}
-• City: ${formData.city}
-• Address: ${formData.fullAddress}
+💰 Price: ${formatPKR(product.price)}
+📦 Quantity: 1
+📥 Total Amount: ${formatPKR(product.price)}
 
-💳 *Payment Details:*
-• Method: ${settings.paymentMethods.find(m => m.id === formData.paymentMethod)?.name || 'N/A'}
-• Receiver Name: ${formData.receiverName}
-• Receiver Number: ${formData.receiverNumber}
-${formData.senderName ? `• Sender Name: ${formData.senderName}` : ''}
-${formData.senderNumber ? `• Sender Number: ${formData.senderNumber}` : ''}
-${formData.tillId ? `• Till ID: ${formData.tillId}` : ''}
+👤 Customer: ${formData.userName}
+📞 WhatsApp: ${formData.whatsappNumber}
+📍 Address: ${formData.city}, ${formData.fullAddress}
 
-Thank you for your order! 🙏
-    `.trim();
+💳 Payment Method: ${paymentMethodName}
+📥 Receiver: ${formData.receiverName} (${formData.receiverNumber})
+${formData.senderName ? `📤 Sender: ${formData.senderName} (${formData.senderNumber || 'N/A'})` : ''}
+${formData.tillId ? `🏧 Till ID: ${formData.tillId}` : ''}
+
+Thank you for your order! 🙏`;
 
     const whatsappUrl = `https://wa.me/${settings.whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -188,6 +200,11 @@ Thank you for your order! 🙏
                 <h1 className="text-3xl font-display font-bold text-foreground mb-4">
                   Thank You!
                 </h1>
+                {orderId && (
+                  <p className="text-lg text-muted-foreground mb-2">
+                    Order ID: <span className="font-mono font-semibold text-foreground">{orderId}</span>
+                  </p>
+                )}
                 <p className="text-xl text-muted-foreground mb-8">
                   Your order has been confirmed.
                 </p>
@@ -236,7 +253,7 @@ Thank you for your order! 🙏
                     <div className="flex-1">
                       <h3 className="font-semibold text-foreground">{product.name}</h3>
                       <p className="text-2xl font-bold text-accent mt-1">
-                        ${product.price.toFixed(2)}
+                        {formatPKR(product.price)}
                       </p>
                     </div>
                   </div>

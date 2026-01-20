@@ -5,6 +5,7 @@ import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/hooks/useProducts';
 import { getProductCardImage } from '@/lib/imageUtils';
+import { formatPKR } from '@/lib/currency';
 
 interface ProductCardProps {
   product: Product;
@@ -51,7 +52,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-accent">
-            ${product.price.toFixed(2)}
+            {formatPKR(product.price)}
           </span>
           
           <Button

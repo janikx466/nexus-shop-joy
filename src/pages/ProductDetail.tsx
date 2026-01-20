@@ -11,6 +11,7 @@ import DiscountBanner from '@/components/DiscountBanner';
 import ImageCarousel from '@/components/ImageCarousel';
 import { useAuth } from '@/contexts/AuthContext';
 import { Product } from '@/hooks/useProducts';
+import { formatPKR } from '@/lib/currency';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -116,7 +117,7 @@ const ProductDetail: React.FC = () => {
                 
                 <div className="flex items-baseline gap-3">
                   <span className="text-4xl font-bold text-accent">
-                    ${product.price.toFixed(2)}
+                    {formatPKR(product.price)}
                   </span>
                 </div>
               </div>
