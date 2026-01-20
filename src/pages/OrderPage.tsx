@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { MessageCircle, ArrowLeft, Check, Loader2, Minus, Plus } from 'lucide-react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import { formatPKR, generateOrderId } from '@/lib/currency';
 
 const OrderPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { settings } = useSite();
@@ -32,6 +33,7 @@ const OrderPage: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [quantity, setQuantity] = useState(1);
 
   const [formData, setFormData] = useState({
     userName: '',
@@ -48,7 +50,7 @@ const OrderPage: React.FC = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate(`/auth?mode=login&redirect=/order/${id}`);
+      navigate(`/auth?mode=login&redirect=/order/${id}${searchParams.get('qty') ? `?qty=${searchParams.get('qty')}` : ''}`);
       return;
     }
 
@@ -60,10 +62,16 @@ const OrderPage: React.FC = () => {
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-          setProduct({
+          const productData = {
             id: docSnap.id,
             ...docSnap.data(),
-          } as Product);
+            stock: docSnap.data().stock ?? 0,
+          } as Product;
+          setProduct(productData);
+          
+          // Set initial quantity from URL params
+          const qtyParam = parseInt(searchParams.get('qty') || '1');
+          setQuantity(Math.max(1, Math.min(qtyParam, productData.stock)));
         }
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -73,13 +81,19 @@ const OrderPage: React.FC = () => {
     };
 
     fetchProduct();
-  }, [id, user, navigate]);
+  }, [id, user, navigate, searchParams]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
+  };
+  const maxQuantity = product ? product.stock : 1;
+  const totalAmount = product ? product.price * quantity : 0;
+
+  const handleQuantityChange = (delta: number) => {
+    setQuantity(prev => Math.max(1, Math.min(prev + delta, maxQuantity)));
   };
 
   const handlePaymentMethodChange = (value: string) => {
@@ -116,8 +130,8 @@ const OrderPage: React.FC = () => {
 ${productUrl}
 
 💰 Price: ${formatPKR(product.price)}
-📦 Quantity: 1
-📥 Total Amount: ${formatPKR(product.price)}
+📦 Quantity: ${quantity}
+📥 Total Amount: ${formatPKR(totalAmount)}
 
 👤 Customer: ${formData.userName}
 📞 WhatsApp: ${formData.whatsappNumber}
@@ -252,9 +266,44 @@ Thank you for your order! 🙏`;
                     )}
                     <div className="flex-1">
                       <h3 className="font-semibold text-foreground">{product.name}</h3>
-                      <p className="text-2xl font-bold text-accent mt-1">
-                        {formatPKR(product.price)}
+                      <p className="text-lg font-bold text-accent mt-1">
+                        {formatPKR(product.price)} × {quantity}
                       </p>
+                    </div>
+                  </div>
+                  
+                  {/* Quantity Selector */}
+                  <div className="mt-4 pt-4 border-t flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-muted-foreground">Quantity:</span>
+                      <div className="flex items-center gap-2 bg-background rounded-lg p-1 border">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleQuantityChange(-1)}
+                          disabled={quantity <= 1}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-8 text-center font-semibold">{quantity}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleQuantityChange(1)}
+                          disabled={quantity >= maxQuantity}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        ({product.stock} available)
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground">Total</p>
+                      <p className="text-2xl font-bold text-accent">{formatPKR(totalAmount)}</p>
                     </div>
                   </div>
                 </div>

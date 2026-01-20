@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ShoppingCart, Check } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Check, Minus, Plus } from 'lucide-react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DiscountBanner from '@/components/DiscountBanner';
@@ -19,6 +20,7 @@ const ProductDetail: React.FC = () => {
   const { user } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -44,11 +46,18 @@ const ProductDetail: React.FC = () => {
     fetchProduct();
   }, [id]);
 
+  const isOutOfStock = product ? product.stock <= 0 : true;
+  const maxQuantity = product ? product.stock : 1;
+
+  const handleQuantityChange = (delta: number) => {
+    setQuantity(prev => Math.max(1, Math.min(prev + delta, maxQuantity)));
+  };
+
   const handleBuy = () => {
     if (!user) {
-      navigate(`/auth?mode=login&redirect=/order/${id}`);
+      navigate(`/auth?mode=login&redirect=/order/${id}?qty=${quantity}`);
     } else {
-      navigate(`/order/${id}`);
+      navigate(`/order/${id}?qty=${quantity}`);
     }
   };
 
@@ -115,20 +124,59 @@ const ProductDetail: React.FC = () => {
                   {product.name}
                 </h1>
                 
-                <div className="flex items-baseline gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <span className="text-4xl font-bold text-accent">
                     {formatPKR(product.price)}
                   </span>
+                  {isOutOfStock ? (
+                    <Badge variant="destructive">Out of Stock</Badge>
+                  ) : (
+                    <Badge variant="secondary" className="text-sm">
+                      {product.stock} available
+                    </Badge>
+                  )}
                 </div>
               </div>
+
+              {/* Quantity Selector */}
+              {!isOutOfStock && (
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium text-muted-foreground">Quantity:</span>
+                  <div className="flex items-center gap-2 bg-secondary rounded-lg p-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleQuantityChange(-1)}
+                      disabled={quantity <= 1}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="w-10 text-center font-semibold">{quantity}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleQuantityChange(1)}
+                      disabled={quantity >= maxQuantity}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <span className="text-lg font-bold text-foreground">
+                    Total: {formatPKR(product.price * quantity)}
+                  </span>
+                </div>
+              )}
 
               {/* Buy Button */}
               <Button
                 onClick={handleBuy}
                 className="btn-accent w-full text-lg py-6"
+                disabled={isOutOfStock}
               >
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                Buy Now
+                {isOutOfStock ? 'Out of Stock' : 'Buy Now'}
               </Button>
 
               {/* Description */}
