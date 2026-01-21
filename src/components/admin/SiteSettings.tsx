@@ -16,6 +16,7 @@ const SiteSettings: React.FC = () => {
   const [formData, setFormData] = useState({
     siteName: settings.siteName,
     logoUrl: settings.logoUrl,
+    faviconUrl: settings.faviconUrl,
     footerContent: settings.footerContent,
     whatsappNumber: settings.whatsappNumber,
   });
@@ -62,6 +63,18 @@ const SiteSettings: React.FC = () => {
           <ImageUploader
             images={formData.logoUrl ? [formData.logoUrl] : []}
             onImagesChange={(images) => setFormData({ ...formData, logoUrl: images[0] || '' })}
+            disabled={isDemoAdmin}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Website Favicon</Label>
+          <p className="text-sm text-muted-foreground mb-2">
+            Upload a square image (32x32 or 64x64 recommended) to use as your site's favicon.
+          </p>
+          <ImageUploader
+            images={formData.faviconUrl ? [formData.faviconUrl] : []}
+            onImagesChange={(images) => setFormData({ ...formData, faviconUrl: images[0] || '' })}
             disabled={isDemoAdmin}
           />
         </div>

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Product } from '@/hooks/useProducts';
 import { getProductCardImage } from '@/lib/imageUtils';
 import { formatPKR } from '@/lib/currency';
+import ProductMenu from './ProductMenu';
 
 interface ProductCardProps {
   product: Product;
@@ -28,6 +29,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
     >
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden bg-secondary">
+        {/* Three-dots menu */}
+        <ProductMenu 
+          productId={product.id} 
+          className="absolute top-3 right-3 z-10" 
+        />
+        
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -44,7 +51,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         
         {/* Stock Badge */}
         {isOutOfStock && (
-          <Badge variant="destructive" className="absolute top-3 right-3">
+          <Badge variant="destructive" className="absolute top-3 left-3">
             Out of Stock
           </Badge>
         )}

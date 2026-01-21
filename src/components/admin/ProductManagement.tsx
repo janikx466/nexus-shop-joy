@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import ImageUploader from './ImageUploader';
+import ProductSearch from '@/components/ProductSearch';
+import ProductMenu from '@/components/ProductMenu';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPKR } from '@/lib/currency';
@@ -24,6 +26,16 @@ const ProductManagement: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter products based on search query
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) return products;
+    const query = searchQuery.toLowerCase();
+    return products.filter(product => 
+      product.name.toLowerCase().includes(query)
+    );
+  }, [products, searchQuery]);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -104,7 +116,7 @@ const ProductManagement: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-display font-bold text-foreground">
-          Products
+          Products ({filteredProducts.length})
         </h2>
         
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -228,21 +240,37 @@ const ProductManagement: React.FC = () => {
         </div>
       )}
 
+      {/* Search Bar */}
+      <ProductSearch
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search products..."
+        className="max-w-md"
+      />
+
       {/* Products Grid */}
-      {products.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <div className="text-center py-12 bg-secondary/30 rounded-2xl">
-          <p className="text-muted-foreground">No products yet. Add your first product!</p>
+          <p className="text-muted-foreground">
+            {searchQuery ? `No products found matching "${searchQuery}"` : 'No products yet. Add your first product!'}
+          </p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {products.map((product, index) => (
+          {filteredProducts.map((product, index) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="bg-card rounded-xl border overflow-hidden"
+              className="bg-card rounded-xl border overflow-hidden relative"
             >
+              {/* Three-dots menu */}
+              <ProductMenu 
+                productId={product.id} 
+                className="absolute top-3 right-3 z-10" 
+              />
+              
               <div className="aspect-video bg-secondary">
                 {product.images[0] ? (
                   <img

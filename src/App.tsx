@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SiteProvider } from "@/contexts/SiteContext";
+import FaviconUpdater from "@/components/FaviconUpdater";
 import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import OrderPage from "./pages/OrderPage";
@@ -21,6 +22,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <FaviconUpdater />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />

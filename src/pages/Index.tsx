@@ -1,16 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DiscountBanner from '@/components/DiscountBanner';
 import ProductCard from '@/components/ProductCard';
+import ProductSearch from '@/components/ProductSearch';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useProducts } from '@/hooks/useProducts';
 import { Sparkles } from 'lucide-react';
 
 const Index: React.FC = () => {
   const [showLoading, setShowLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const { products, loading } = useProducts();
+
+  // Filter products based on search query
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) return products;
+    const query = searchQuery.toLowerCase();
+    return products.filter(product => 
+      product.name.toLowerCase().includes(query)
+    );
+  }, [products, searchQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -84,15 +95,30 @@ const Index: React.FC = () => {
                   Our Products
                 </h2>
                 <span className="text-sm text-muted-foreground">
-                  {products.length} {products.length === 1 ? 'item' : 'items'}
+                  {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'items'}
                 </span>
+              </motion.div>
+
+              {/* Search Bar */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mb-8"
+              >
+                <ProductSearch
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder="Search products by name..."
+                  className="max-w-md"
+                />
               </motion.div>
 
               {loading ? (
                 <div className="flex items-center justify-center py-20">
                   <div className="loading-spinner w-12 h-12" />
                 </div>
-              ) : products.length === 0 ? (
+              ) : filteredProducts.length === 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -102,15 +128,17 @@ const Index: React.FC = () => {
                     <Sparkles className="h-10 w-10 text-muted-foreground" />
                   </div>
                   <h3 className="text-xl font-display font-semibold text-foreground mb-2">
-                    Coming Soon
+                    {searchQuery ? 'No products found' : 'Coming Soon'}
                   </h3>
                   <p className="text-muted-foreground">
-                    Our products are being prepared. Check back soon!
+                    {searchQuery 
+                      ? `No products matching "${searchQuery}"`
+                      : 'Our products are being prepared. Check back soon!'}
                   </p>
                 </motion.div>
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {products.map((product, index) => (
+                  {filteredProducts.map((product, index) => (
                     <ProductCard key={product.id} product={product} index={index} />
                   ))}
                 </div>
