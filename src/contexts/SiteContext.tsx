@@ -18,6 +18,7 @@ interface DiscountPoster {
 interface SiteSettings {
   siteName: string;
   logoUrl: string;
+  faviconUrl: string;
   footerContent: string;
   whatsappNumber: string;
   paymentMethods: PaymentMethod[];
@@ -33,6 +34,7 @@ interface SiteContextType {
 const defaultSettings: SiteSettings = {
   siteName: 'Luxe Store',
   logoUrl: '',
+  faviconUrl: '',
   footerContent: '© 2024 Luxe Store. All rights reserved.',
   whatsappNumber: '',
   paymentMethods: [],

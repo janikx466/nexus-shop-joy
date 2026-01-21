@@ -8,7 +8,7 @@ export const formatRs = (amount: number): string => {
   return `Rs ${amount.toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 };
 
-// Generate unique Order ID in format: FOXO-ORD-{YYYYMMDD}-{RANDOM4}
+// Generate unique Order ID in format: LUXRE-ORD-{YYYYMMDD}-{RANDOM4}
 export const generateOrderId = (): string => {
   const date = new Date();
   const year = date.getFullYear();
@@ -23,5 +23,5 @@ export const generateOrderId = (): string => {
     random += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   
-  return `FOXO-ORD-${dateStr}-${random}`;
+  return `LUXRE-ORD-${dateStr}-${random}`;
 };

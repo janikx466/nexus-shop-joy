@@ -113,7 +113,9 @@ export const getCloudinaryUrl = (
   // Insert transformations after /upload/
   const parts = url.split('/upload/');
   if (parts.length === 2) {
-    return `${parts[0]}/upload/f_auto,q_${quality},w_${width}/${parts[1]}`;
+    // Handle quality formats like 'auto:good' or 'auto:best'
+    const qualityParam = quality.includes(':') ? quality.replace(':', '_') : quality;
+    return `${parts[0]}/upload/f_auto,q_${qualityParam},w_${width}/${parts[1]}`;
   }
 
   return url;
@@ -127,10 +129,24 @@ export const getProductCardImage = (url: string): string => {
 };
 
 /**
- * Get detail image URL (600px for product detail)
+ * Get detail image URL (900px for product detail with good quality)
  */
 export const getProductDetailImage = (url: string): string => {
-  return getCloudinaryUrl(url, { width: 600, quality: 'auto' });
+  return getCloudinaryUrl(url, { width: 900, quality: 'auto:good' });
+};
+
+/**
+ * Get full preview image URL (1400px for zoom/fullscreen with best quality)
+ */
+export const getProductFullImage = (url: string): string => {
+  return getCloudinaryUrl(url, { width: 1400, quality: 'auto:best' });
+};
+
+/**
+ * Get product page URL
+ */
+export const getProductUrl = (productId: string): string => {
+  return `https://luxre.vercel.app/product/${productId}`;
 };
 
 /**

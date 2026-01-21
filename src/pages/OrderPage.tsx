@@ -115,9 +115,8 @@ const OrderPage: React.FC = () => {
     const newOrderId = generateOrderId();
     setOrderId(newOrderId);
     
-    // Get product URL - use the published URL or current origin
-    const baseUrl = window.location.origin;
-    const productUrl = `${baseUrl}/product/${product.id}`;
+    // Get product URL - always use the production URL
+    const productUrl = `https://luxre.vercel.app/product/${product.id}`;
     
     const paymentMethodName = settings.paymentMethods.find(m => m.id === formData.paymentMethod)?.name || 'N/A';
     
