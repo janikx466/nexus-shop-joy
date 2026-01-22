@@ -35,16 +35,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
           className="absolute top-3 right-3 z-10" 
         />
         
-        {imageUrl ? (
+        {imageUrl && imageUrl.length > 0 ? (
           <img
             src={imageUrl}
             alt={product.name}
             className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${isOutOfStock ? 'opacity-50' : ''}`}
             loading="lazy"
             decoding="async"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-secondary">
             No Image
           </div>
         )}

@@ -33,11 +33,11 @@ export const uploadToCloudinary = async (
 ): Promise<string> => {
   const { cloudName } = getCloudinaryConfig();
 
-  // Compress image before upload
+  // Compress image before upload - high quality settings
   const compressedBlob = await compressImage(file, {
-    maxWidth: 600,
-    maxHeight: 600,
-    quality: 0.75,
+    maxWidth: 1600,
+    maxHeight: 1600,
+    quality: 0.82,
     type: 'image/webp',
   });
 

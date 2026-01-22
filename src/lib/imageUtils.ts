@@ -16,9 +16,9 @@ export const compressImage = async (
   options: CompressionOptions = {}
 ): Promise<Blob> => {
   const {
-    maxWidth = 600,
-    maxHeight = 600,
-    quality = 0.7,
+    maxWidth = 1600,
+    maxHeight = 1600,
+    quality = 0.82,
     type = 'image/webp',
   } = options;
 
@@ -98,7 +98,7 @@ export const getCloudinaryUrl = (
   url: string,
   options: { width?: number; quality?: string } = {}
 ): string => {
-  const { width = 300, quality = 'auto' } = options;
+  const { width = 400, quality = 'auto' } = options;
 
   // Check if it's a Cloudinary URL
   if (!url || !url.includes('cloudinary.com')) {
@@ -122,24 +122,31 @@ export const getCloudinaryUrl = (
 };
 
 /**
- * Get thumbnail URL (300px for product cards)
+ * Get thumbnail URL (400px for product cards)
  */
 export const getProductCardImage = (url: string): string => {
-  return getCloudinaryUrl(url, { width: 300, quality: 'auto' });
+  return getCloudinaryUrl(url, { width: 400, quality: 'auto' });
 };
 
 /**
- * Get detail image URL (900px for product detail with good quality)
+ * Get detail image URL (1200px for product detail with best quality)
  */
 export const getProductDetailImage = (url: string): string => {
-  return getCloudinaryUrl(url, { width: 900, quality: 'auto:good' });
+  return getCloudinaryUrl(url, { width: 1200, quality: 'auto:best' });
 };
 
 /**
- * Get full preview image URL (1400px for zoom/fullscreen with best quality)
+ * Get full preview image URL (1600px for zoom/fullscreen with best quality)
  */
 export const getProductFullImage = (url: string): string => {
-  return getCloudinaryUrl(url, { width: 1400, quality: 'auto:best' });
+  return getCloudinaryUrl(url, { width: 1600, quality: 'auto:best' });
+};
+
+/**
+ * Get order page image URL (300px for order summary)
+ */
+export const getOrderPageImage = (url: string): string => {
+  return getCloudinaryUrl(url, { width: 300, quality: 'auto' });
 };
 
 /**
