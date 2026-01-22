@@ -31,9 +31,14 @@ const ProductDetail: React.FC = () => {
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
+          const data = docSnap.data();
           setProduct({
             id: docSnap.id,
-            ...docSnap.data(),
+            name: data.name || '',
+            price: data.price || 0,
+            description: data.description || '',
+            images: data.images || [],
+            stock: data.stock ?? 0,
           } as Product);
         }
       } catch (error) {

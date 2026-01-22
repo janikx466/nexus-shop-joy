@@ -20,6 +20,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSite } from '@/contexts/SiteContext';
 import { Product } from '@/hooks/useProducts';
 import { formatPKR, generateOrderId } from '@/lib/currency';
+import { getOrderPageImage } from '@/lib/imageUtils';
 
 const OrderPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -256,12 +257,20 @@ Thank you for your order! 🙏`;
                 {/* Product Summary */}
                 <div className="bg-secondary/50 rounded-2xl p-6 border mb-8">
                   <div className="flex items-center gap-4">
-                    {product.images[0] && (
+                    {product.images[0] ? (
                       <img
-                        src={product.images[0]}
+                        src={getOrderPageImage(product.images[0])}
                         alt={product.name}
-                        className="w-20 h-20 rounded-lg object-cover"
+                        className="w-20 h-20 rounded-lg object-cover bg-secondary"
+                        loading="eager"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
+                    ) : (
+                      <div className="w-20 h-20 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground text-xs">
+                        No Image
+                      </div>
                     )}
                     <div className="flex-1">
                       <h3 className="font-semibold text-foreground">{product.name}</h3>
