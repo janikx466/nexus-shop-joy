@@ -113,9 +113,7 @@ export const getCloudinaryUrl = (
   // Insert transformations after /upload/
   const parts = url.split('/upload/');
   if (parts.length === 2) {
-    // Handle quality formats like 'auto:good' or 'auto:best'
-    const qualityParam = quality.includes(':') ? quality.replace(':', '_') : quality;
-    return `${parts[0]}/upload/f_auto,q_${qualityParam},w_${width}/${parts[1]}`;
+    return `${parts[0]}/upload/f_auto,q_${quality},w_${width}/${parts[1]}`;
   }
 
   return url;
