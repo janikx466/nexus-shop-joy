@@ -24,7 +24,10 @@ const ProductDetail: React.FC = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
-      if (!id) return;
+      if (!id) {
+        setLoading(false);
+        return;
+      }
       
       try {
         const docRef = doc(db, 'products', id);
@@ -32,13 +35,17 @@ const ProductDetail: React.FC = () => {
         
         if (docSnap.exists()) {
           const data = docSnap.data();
+          // Ensure images is always an array with valid URLs
+          const imagesArray = Array.isArray(data.images) ? data.images.filter((img: string) => img && img.length > 0) : [];
+          
           setProduct({
             id: docSnap.id,
             name: data.name || '',
             price: data.price || 0,
             description: data.description || '',
-            images: data.images || [],
+            images: imagesArray,
             stock: data.stock ?? 0,
+            createdAt: data.createdAt?.toDate() || new Date(),
           } as Product);
         }
       } catch (error) {
